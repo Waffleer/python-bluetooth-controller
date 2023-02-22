@@ -8,7 +8,7 @@ Code is written for a raspberry pi pico but the send code for the computer shoul
 
 You can easily change the code in computer/main.py to send over different data as well
 
-If you want to change the controller commands that are send over bluetooth then change the .read() function in the XboxController class
+If you want to change the controller inputs that are send over bluetooth then change the .read() function in the XboxController class
 
 # how to install
 
