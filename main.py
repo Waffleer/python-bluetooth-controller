@@ -1,65 +1,140 @@
-import bluetooth  # install pybluez before importing
-import struct
-import binascii
+import serial
+from time import sleep
+
+
+from inputs import get_gamepad
+import math
+import threading
+
+class XboxController(object):
+    MAX_TRIG_VAL = math.pow(2, 8)
+    MAX_JOY_VAL = math.pow(2, 15)
+
+    def __init__(self):
+
+        self.LeftJoystickY = 0
+        self.LeftJoystickX = 0
+        self.RightJoystickY = 0
+        self.RightJoystickX = 0
+        self.LeftTrigger = 0
+        self.RightTrigger = 0
+        self.LeftBumper = 0
+        self.RightBumper = 0
+        self.A = 0
+        self.X = 0
+        self.Y = 0
+        self.B = 0
+        self.LeftThumb = 0
+        self.RightThumb = 0
+        self.Back = 0
+        self.Start = 0
+        self.LeftDPad = 0
+        self.RightDPad = 0
+        self.UpDPad = 0
+        self.DownDPad = 0
+
+        self._monitor_thread = threading.Thread(target=self._monitor_controller, args=())
+        self._monitor_thread.daemon = True
+        self._monitor_thread.start()
+
+
+    def read(self): # return the buttons/triggers that you care about in this method
+        x = self.LeftJoystickX
+        y = self.LeftJoystickY
+        a = self.A
+        b = self.B # b=1, x=2
+        rt = self.RightTrigger
+        lt = self.LeftTrigger
+        return [x, y, a, b, rt, lt]
+
+
+    def _monitor_controller(self):
+        while True:
+            events = get_gamepad()
+            for event in events:
+                if event.code == 'ABS_Y':
+                    self.LeftJoystickY = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
+                elif event.code == 'ABS_X':
+                    self.LeftJoystickX = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
+                elif event.code == 'ABS_RY':
+                    self.RightJoystickY = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
+                elif event.code == 'ABS_RX':
+                    self.RightJoystickX = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
+                elif event.code == 'ABS_Z':
+                    self.LeftTrigger = event.state / XboxController.MAX_TRIG_VAL # normalize between 0 and 1
+                elif event.code == 'ABS_RZ':
+                    self.RightTrigger = event.state / XboxController.MAX_TRIG_VAL # normalize between 0 and 1
+                elif event.code == 'BTN_TL':
+                    self.LeftBumper = event.state
+                elif event.code == 'BTN_TR':
+                    self.RightBumper = event.state
+                elif event.code == 'BTN_SOUTH':
+                    self.A = event.state
+                elif event.code == 'BTN_NORTH':
+                    self.X = event.state
+                elif event.code == 'BTN_WEST':
+                    self.Y = event.state
+                elif event.code == 'BTN_EAST':
+                    self.B = event.state
+                elif event.code == 'BTN_THUMBL':
+                    self.LeftThumb = event.state
+                elif event.code == 'BTN_THUMBR':
+                    self.RightThumb = event.state
+                elif event.code == 'BTN_SELECT':
+                    self.Back = event.state
+                elif event.code == 'BTN_START':
+                    self.Start = event.state
+                elif event.code == 'BTN_TRIGGER_HAPPY1':
+                    self.LeftDPad = event.state
+                elif event.code == 'BTN_TRIGGER_HAPPY2':
+                    self.RightDPad = event.state
+                elif event.code == 'BTN_TRIGGER_HAPPY3':
+                    self.UpDPad = event.state
+                elif event.code == 'BTN_TRIGGER_HAPPY4':
+                    self.DownDPad = event.state
 
 
 
-class GLMxxC(object):
-    device_name = ''
-    socket = None
-    port = 0x0005  # depends on model type
-    bluetooth_address = None
-    connected = False
-    cmds = {
-            'measure':          b'\xC0\x40\x00\xEE',
-            'laser_on':         b'\xC0\x41\x00\x96',
-            'laser_off':        b'\xC0\x42\x00\x1E',
-            'backlight_on':     b'\xC0\x47\x00\x20',
-            'backlight_off':    b'\xC0\x48\x00\x62'
-        }
 
-    status = {
-            0:  'ok',
-            1:  'communication timeout',
-            3:  'checksum error',
-            4:  'unknown command',
-            5:  'invalid access level',
-            8:  'hardware error',
-            10: 'device not ready',
-        }
 
-    #Initializing or Constructor
-    def __init__(self, bluetooth_address=None):
-        if bluetooth_address is None:
-            self.find_GLMxxC()
-        else:
-            self.bluetooth_address = bluetooth_address
-        self.connect()
-    #Finding the available bluetooth devices
-    def find_GLMxxC(self):
-        print('Searching for BOSCH GLMxxC ...')
 
-        nearby_devices = bluetooth.discover_devices(
-            duration=8, lookup_names=True, flush_cache=True, lookup_class=False)
-            
-        for index, val in enumerate(nearby_devices):
-                addr, name = val
-                if 'BOSCH GLM' in name.upper():
-                    self.bluetooth_address = addr
-                    print('Found ', name.upper(), ' @', self.bluetooth_address)
-                    self.device_name = name.upper()
-                    if 'GLM50' in self.device_name:
-                        self.port = 5
-                    return
 
-    def connect(self):
-        try:
-            self.socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-            self.socket.connect((self.bluetooth_address, self.port))
-            self.connected = True
-        except:
-            self.socket.close()
-            self.conencted = False
+port = 'COM5'
+
+serialPort = serial.Serial(port=port, baudrate=9600, timeout=0, parity=serial.PARITY_EVEN, stopbits=1)
+size = 1024
+
+joy = XboxController()
+while True:
+
+    data = joy.read()
+    #Smoothing inputs from 1 to 0 to 0 to 100 and removing decimals
+    data[0] = (int) (data[0] *100)
+    data[1] = (int) (data[1] *100)
+
+    #changing analog trigger inputs to digital 0-1
+    if data[4] > 0 : data[4] = 1 
+    else: data[4] = 0
+
+    if data[5] > 0 : data[5] = 1 
+    else: data[5] = 0
+
+
+
+    #Creates send data lx,ly,a,b,rt,lt
+    #Converts list to string without []
+    data = str(data).strip("[]")
+    #encodes and with ASCII
+    sendData = f"{data}".encode("ASCII")
+    #Sends data
+    data = serialPort.write(sendData)
+
+    #Optional Data print
+    if data:
+        print(sendData)
+
+    #delays system from sending packets too fast, faster then .05 gives me an error on the pico end, change at your own risk
+    sleep(.05)
 
 
 

@@ -1,17 +1,7 @@
-will need to install c++ build tools if not done so
-    https://visualstudio.microsoft.com/visual-cpp-build-tools/
 
 
-
-// Install PyBluez
-https://github.com/pybluez/pybluez/issues/431
-https://github.com/pybluez/pybluez/blob/master/docs/install.rst
-
-
-
-pip install PyBluez
-pip install urllib3
-pip install chardet2
+pip install serialpy
+pip install inputs
 
 
 
