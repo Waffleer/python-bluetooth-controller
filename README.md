@@ -27,13 +27,16 @@ In "Bluetooth & Devices" go to "More Bluetooth settings"
 Click on "COM Ports"
 
 See what COM port is being used for outgoing traffic to your pico 
+
     You need to be connected via bluetooth for this to work
 
     go to computer/main.py and change to the correct COM port, default is 5
 
 
 Add pico/main.py to your raspberry pi pico
+
     I normally use Thonny IDE for working with my pico
+    
         https://thonny.org/
 
 
