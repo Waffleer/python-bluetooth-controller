@@ -1,10 +1,16 @@
 import serial
 from time import sleep
-
-
 from inputs import get_gamepad
 import math
 import threading
+
+#XboxController Class for getting xbox controller inputs, might work with other controllers as well, not sure
+#change the .read() function if you want more or less inputs
+
+#What serial port your using
+port = 'COM5'
+serialPort = serial.Serial(port=port, baudrate=9600, timeout=0, parity=serial.PARITY_EVEN, stopbits=1)
+size = 1024
 
 class XboxController(object):
     MAX_TRIG_VAL = math.pow(2, 8)
@@ -94,25 +100,18 @@ class XboxController(object):
                     self.DownDPad = event.state
 
 
-
-
-
-
-
-port = 'COM5'
-
-serialPort = serial.Serial(port=port, baudrate=9600, timeout=0, parity=serial.PARITY_EVEN, stopbits=1)
-size = 1024
-
 joy = XboxController()
-while True:
 
+#Sends data while true, stop program to break loop
+while True:
+    #Gets inputs from controller
     data = joy.read()
-    #Smoothing inputs from 1 to 0 to 0 to 100 and removing decimals
+
+    #Smooths inputs from 1.0 to -1.0 float to -100 to 100 integer
     data[0] = (int) (data[0] *100)
     data[1] = (int) (data[1] *100)
 
-    #changing analog trigger inputs to digital 0-1
+    #changing analog trigger 0.0 to 1.0 inputs to digital 0-1
     if data[4] > 0 : data[4] = 1 
     else: data[4] = 0
 
