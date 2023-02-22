@@ -2,7 +2,11 @@
  
 This is a script to send data packets over a bluetooth connection via a COM port.
 
-This uses an xbox controller to get inputs and puts them into a string which is sent over a serial connection to reviving raspberry pi pico with a bluetooth connection
+I am using a wired xbox controller to get inputs and am sending them over a bluetooth serial connection to a raspberry pi pico with a HC-05 bluetooth module
+
+Code is written for a raspberry pi pico but the send code for the computer should work for any bluetooth serial connection
+
+If you want to change the controller commands that are send over bluetooth then change the .read() function in the XboxController class
 
 # how to install
 
@@ -12,6 +16,8 @@ Install packages serialpy & inputs
     - pip install inputs
 
 Download the two main.py files, they are different so dont mix them up
+
+# Implimenting 
 
 Connect to raspberry pi via bluetooth
 
