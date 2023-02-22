@@ -6,6 +6,8 @@ I am using a wired xbox controller to get inputs and am sending them over a blue
 
 Code is written for a raspberry pi pico but the send code for the computer should work for any bluetooth serial connection
 
+You can easily change the code in computer/main.py to send over different data as well
+
 If you want to change the controller commands that are send over bluetooth then change the .read() function in the XboxController class
 
 # how to install
@@ -31,6 +33,8 @@ See what COM port is being used for outgoing traffic to your pico
     You need to be connected via bluetooth for this to work
 
     go to computer/main.py and change to the correct COM port, default is 5
+    
+    COM port shouldn't change in the future
 
 
 Add pico/main.py to your raspberry pi pico
@@ -46,4 +50,5 @@ Run computer/main.py on your computer and you should see a serial output in thon
 
 You can connect a controller and have it read your inputs, this code works with my wired xbox controller but i dont know beyond that
 
-Good luck and have fun, feel free to reach out if you have any questions
+
+Good luck and have fun, feel free to reach out if you have any questions, im bored 90% of the time
