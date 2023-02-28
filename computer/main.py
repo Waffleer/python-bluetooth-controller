@@ -45,13 +45,13 @@ class XboxController(object):
 
 
     def read(self): # return the buttons/triggers that you care about in this method
-        x = self.LeftJoystickX
-        y = self.LeftJoystickY
+        ly = self.LeftJoystickY
+        ry = self.RightJoystickY
         a = self.A
         b = self.B # b=1, x=2
         rt = self.RightTrigger
         lt = self.LeftTrigger
-        return [x, y, a, b, rt, lt]
+        return [ly, ry, a, b, rt, lt]
 
 
     def _monitor_controller(self):
@@ -120,7 +120,7 @@ while True:
 
 
 
-    #Creates send data lx,ly,a,b,rt,lt
+    #Creates send data ly,ry,a,b,rt,lt
     #Converts list to string without []
     data = str(data).strip("[]")
     #encodes and with ASCII
